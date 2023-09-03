@@ -1,0 +1,35 @@
+@startuml
+
+participant "tcp client\n ip:192.168.1.61\nport:2743" as client
+participant "tcp server\n ip:121.5.135.135\nport:9999" as server
+
+
+client -> server: Connection establish request.\n Seq=0,Ack=0\nFlag: Syn: set
+note left #lightgreen
+SYN=1 ：标志位，表示请求建立连接。
+Seq=0 ：初始建立连接值为0，数据包的相对序列号从0开始，表示当前还没有发送数据。
+Ack=0：初始建立连接值为0，已经收到包的数量，表示当前没有接收到数据。
+end note
+
+
+
+
+server -> client: Connection establish acknowledge.\n Seq=0,Ack=1\nFlag:Syn: set, Ack: set
+note left #lightgreen
+[SYN + ACK]: 标志位，同意建立连接，并回送SYN+ACK。
+Seq = 0 ：初始建立值为0，表示当前还没有发送数据。
+Ack = 1：表示当前端成功接收的数据位数，虽然客户端没有发送任何有效数据，确认号还是被加1，因为包含SYN或FIN标志位。
+（并不会对有效数据的计数产生影响，因为含有SYN或FIN标志位的包并不携带有效数据）。
+end note
+
+
+client -> server: Seq=1,Ack=1\nFlag: Ack: set, Syn: not set
+note left #lightgreen
+ACK ：标志位，表示已经收到记录。
+Seq = 1 ：表示当前已经发送1个数据。
+Ack = 1 : 表示当前端成功接收的数据位数，虽然服务端没有发送任何有效数据，确认号还是被加1，因为包含SYN或FIN标志位。
+（并不会对有效数据的计数产生影响，因为含有SYN或FIN标志位的包并不携带有效数据)。
+至此，三次握手完成。
+end note
+
+@enduml

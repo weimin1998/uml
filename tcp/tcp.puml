@@ -1,0 +1,57 @@
+@startuml
+
+participant "tcp client\n ip:192.168.1.61\nport:7779" as client
+participant "tcp server\n ip:121.5.135.135\nport:8888" as server
+
+
+client -> server: Connection establish request.\n Seq=0,Ack=0\nFlag: Syn=1
+note left #lightgreen
+SYN=1 ：标志位，表示请求建立连接。
+Seq=0 ：初始建立连接值为0，数据包的相对序列号从0开始，表示当前还没有发送数据。
+Ack=0：初始建立连接值为0，已经收到包的数量，表示当前没有接收到数据。
+end note
+
+
+
+server -> client: Connection establish acknowledge.\n Seq=0,Ack=1\nFlag:Syn=1,Ack=1
+note left #lightgreen
+[SYN + ACK]: 标志位，同意建立连接，并回送SYN+ACK。
+Seq = 0 ：初始建立值为0，表示当前还没有发送数据。
+Ack = 1：表示当前端成功接收的数据位数，虽然客户端没有发送任何有效数据，确认号还是被加1，因为包含SYN或FIN标志位。
+（并不会对有效数据的计数产生影响，因为含有SYN或FIN标志位的包并不携带有效数据）。
+end note
+
+
+
+client -> server: Seq=1,Ack=1\nFlag: Ack=1,Syn=0
+note left #lightgreen
+ACK ：标志位，表示已经收到记录。
+Seq = 1 ：表示当前已经发送1个数据。
+Ack = 1 : 表示当前端成功接收的数据位数，虽然服务端没有发送任何有效数据，确认号还是被加1，因为包含SYN或FIN标志位。
+（并不会对有效数据的计数产生影响，因为含有SYN或FIN标志位的包并不携带有效数据)。
+至此，三次握手完成。
+end note
+
+
+
+client -> server: Seq=1,Ack=1\nFlag: Psh=1,Ack=1\nTCP Payload data:hello, I'm client.\ndata length:18
+note left #lightblue
+[Psh + Ack]：Psh标志位，表示本TCP报文带有用户数据。
+Seq = 1 ：表示当前已经发送1个数据。
+Ack = 1 : 表示当前端成功接收的数据位数，虽然服务端没有发送任何有效数据，确认号还是被加1，因为包含SYN或FIN标志位。
+（并不会对有效数据的计数产生影响，因为含有SYN或FIN标志位的包并不携带有效数据)。
+data：hello, I'm client.
+data length：18
+end note
+
+
+client -> server: Connection Finish. \nSeq=19,Ack=1\nFlag:Fin=1,Ack=1
+note left #pink
+Fin：标志位，表示这是一个连接关闭请求。
+end note
+server -> client: Seq=1,Ack=19\nFlag:Ack=1
+server -> client: Seq=1,Ack=20\nFlag:Psh=1,Ack=1\nTCP Payload data:hello, I'm server.\ndata length:18
+server -> client: Connection Finish. \nSeq=19,Ack=20\nFlag:Fin=1,Ack=1
+client -> server: Seq=20,Ack=20\nFlag:Ack=1
+
+@enduml

@@ -1,0 +1,10 @@
+@startuml
+
+participant hostA as a
+participant hostB as b
+
+a ->b: Seq=42, ACK=79, data='c'
+b ->a: Seq=79, ACK=43, data='c'
+a ->b: Seq=43, ACK=80
+
+@enduml

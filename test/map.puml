@@ -1,0 +1,48 @@
+@startuml
+
+interface Map
+abstract class AbstractMap
+interface SortMap
+
+
+class HashMap
+class LinkedHashMap
+class WeakHashMap
+class IdentityHashMap
+class EnumMap
+class TreeMap
+class Hashtable
+
+interface NavigableMap
+
+class Properties
+
+Map <|.. AbstractMap
+Map <|-- SortMap
+Map <|.. IdentityHashMap
+AbstractMap <|-- IdentityHashMap
+
+Map <|.. HashMap
+AbstractMap <|-- HashMap
+
+Map <|.. LinkedHashMap
+HashMap <|-- LinkedHashMap
+
+Map <|.. WeakHashMap
+AbstractMap <|-- WeakHashMap
+
+Map <|.. Hashtable
+
+SortMap <|-- NavigableMap
+
+AbstractMap <|-- EnumMap
+
+
+AbstractMap <|-- TreeMap
+NavigableMap <|.. TreeMap
+
+Hashtable <|-- Properties
+
+
+
+@enduml

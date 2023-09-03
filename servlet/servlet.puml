@@ -1,0 +1,28 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface Servlet{
++void init(ServletConfig config)
++ServletConfig getServletConfig()
++void service(ServletRequest req, ServletResponse res)
++String getServletInfo()
++void destroy()
+}
+
+abstract class GenericServlet
+abstract class HttpServlet
+
+interface ServletConfig{
++String getServletName()
++ServletContext getServletContext()
++String getInitParameter(String name)
++Enumeration<String> getInitParameterNames()
+}
+
+Servlet <|.. GenericServlet
+ServletConfig <|.. GenericServlet
+
+GenericServlet <|-- HttpServlet
+
+
+@enduml

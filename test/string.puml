@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+abstract class AbstractStringBuilder
+class StringBuilder
+class StringBuffer
+class String
+
+interface CharSequence
+
+AbstractStringBuilder <|-- StringBuffer
+AbstractStringBuilder <|-- StringBuilder
+
+CharSequence <|.. AbstractStringBuilder
+CharSequence <|.. StringBuilder
+CharSequence <|.. StringBuffer
+CharSequence <|.. String
+
+@enduml

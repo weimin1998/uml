@@ -1,0 +1,87 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface Collection
+
+abstract class AbstractCollection
+
+abstract class AbstractList
+abstract class AbstractSet
+abstract class AbstractQueue
+class ArrayDeque
+
+interface List
+interface Set
+interface Queue
+
+class ArrayList
+class Vector
+class LinkedList
+class Stack
+abstract class AbstractSequentialList
+
+interface SortedSet
+interface NavigableSet
+class HashSet
+class LinkedHashSet
+class TreeSet
+
+abstract class EnumSet
+class JumboEnumSet
+class RegularEnumSet
+
+interface Deque
+class PriorityQueue
+
+
+Collection <|.. AbstractCollection
+
+Collection <|-- List
+Collection <|-- Set
+Collection <|-- Queue
+
+AbstractCollection <|-- AbstractList
+AbstractCollection <|-- AbstractSet
+AbstractCollection <|-- AbstractQueue
+AbstractCollection <|-- ArrayDeque
+
+List <|.. AbstractList
+Set <|.. AbstractSet
+Queue <|.. AbstractQueue
+
+List <|.. ArrayList
+List <|.. Vector
+List <|.. LinkedList
+
+Vector <|-- Stack
+
+AbstractList <|-- ArrayList
+AbstractList <|-- Vector
+AbstractList <|-- AbstractSequentialList
+AbstractList <|-- SubList
+
+AbstractSequentialList <|-- LinkedList
+
+AbstractSet <|-- HashSet
+Set <|.. HashSet
+
+HashSet <|-- LinkedHashSet
+Set <|.. LinkedHashSet
+
+AbstractSet <|-- TreeSet
+NavigableSet <|.. TreeSet
+
+SortedSet <|-- NavigableSet
+Set <|-- SortedSet
+
+AbstractSet <|-- EnumSet
+EnumSet <|-- JumboEnumSet
+EnumSet <|-- RegularEnumSet
+
+Queue <|-- Deque
+Deque <|.. LinkedList
+Deque <|.. ArrayDeque
+
+AbstractQueue <|-- PriorityQueue
+
+@enduml

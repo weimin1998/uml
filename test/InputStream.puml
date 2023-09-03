@@ -1,0 +1,30 @@
+@startuml
+
+abstract class InputStream
+class ObjectInputStream
+class ByteArrayInputStream
+class PipedInputStream
+class StringBufferInputStream
+class FilterInputStream
+class SequenceInputStream
+class FileInputStream
+
+InputStream <|-- ObjectInputStream
+InputStream <|-- ByteArrayInputStream
+InputStream <|-- PipedInputStream
+InputStream <|-- StringBufferInputStream
+InputStream <|-- FilterInputStream
+InputStream <|-- SequenceInputStream
+InputStream <|-- FileInputStream
+
+class DataInputStream
+class BufferedInputStream
+class PushbackInputStream
+class LineNumberInputStream
+
+FilterInputStream <|-- DataInputStream
+FilterInputStream <|-- BufferedInputStream
+FilterInputStream <|-- PushbackInputStream
+FilterInputStream <|-- LineNumberInputStream
+
+@enduml

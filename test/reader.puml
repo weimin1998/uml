@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+abstract class Reader
+
+class PipedReader
+class CharArrayReader
+abstract class FilterReader
+class InputStreamReader
+class StringReader
+class BufferReader
+class PushbackReader
+class LineNumberReader
+
+Reader <|-- PipedReader
+Reader <|-- CharArrayReader
+Reader <|-- FilterReader
+Reader <|-- InputStreamReader
+Reader <|-- StringReader
+Reader <|-- BufferReader
+FilterReader <|-- PushbackReader
+BufferReader <|-- LineNumberReader
+
+@enduml
