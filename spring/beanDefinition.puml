@@ -1,0 +1,71 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface BeanDefinition{
+    String getParentName()
+    String getBeanClassName()
+    String getScope()
+    boolean isLazyInit()
+    String[] getDependsOn()
+    boolean isAutowireCandidate()
+    boolean isPrimary()
+    String getFactoryBeanName()
+    String getFactoryMethodName()
+    ConstructorArgumentValues getConstructorArgumentValues()
+    MutablePropertyValues getPropertyValues()
+    String getInitMethodName()
+    String getDestroyMethodName()
+    int getRole()
+    String getDescription()
+    boolean isSingleton()
+    boolean isPrototype()
+    boolean isAbstract()
+    BeanDefinition getOriginatingBeanDefinition()
+}
+
+abstract class AbstractBeanDefinition{
+    + {static} final String SCOPE_DEFAULT = "";
+	+ {static} final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
+	+ {static} final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
+	+ {static} final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
+	+ {static} final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
+	+ {static} final int AUTOWIRE_AUTODETECT = AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT;
+
+	+ {static} final int DEPENDENCY_CHECK_NONE = 0;
+	+ {static} final int DEPENDENCY_CHECK_OBJECTS = 1;
+	+ {static} final int DEPENDENCY_CHECK_SIMPLE = 2;
+	+ {static} final int DEPENDENCY_CHECK_ALL = 3;
+
+	+ {static} final String INFER_METHOD = "(inferred)";
+	- volatile Object beanClass;
+	- String scope = SCOPE_DEFAULT;
+	- boolean abstractFlag = false;
+	- Boolean lazyInit;
+	- int autowireMode = AUTOWIRE_NO;
+	- int dependencyCheck = DEPENDENCY_CHECK_NONE;
+	- String[] dependsOn;
+	- boolean autowireCandidate = true;
+	- boolean primary = false;
+	- final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
+	- Supplier<?> instanceSupplier;
+	- boolean non+AccessAllowed = true;
+	- boolean lenientConstructorResolution = true;
+	- String factoryBeanName;
+	- String factoryMethodName;
+	- ConstructorArgumentValues constructorArgumentValues;
+	- MutablePropertyValues propertyValues;
+	- MethodOverrides methodOverrides = new MethodOverrides();
+	- String initMethodName;
+	- String destroyMethodName;
+	- boolean enforceInitMethod = true;
+	- boolean enforceDestroyMethod = true;
+	- boolean synthetic = false;
+	- int role = BeanDefinition.ROLE_APPLICATION;
+	- String description;
+	- Resource resource;
+}
+
+
+BeanDefinition <|.. AbstractBeanDefinition
+
+@enduml

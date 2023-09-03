@@ -1,0 +1,8 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+participant "ApplicationContext"
+
+"ApplicationContext" ->"ApplicationContext":
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+interface BeanFactoryPostProcessor{
+
+    void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+
+}
+interface BeanDefinitionRegistryPostProcessor{
+
+    void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+
+}
+
+BeanFactoryPostProcessor <|-- BeanDefinitionRegistryPostProcessor
+
+
+@enduml

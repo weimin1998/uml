@@ -1,0 +1,33 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+title content Negotiation
+start
+:get all mediaTypes client support;
+note left
+strategies:
+request header **Accept**;
+request param;
+request url suffix;
+endnote
+
+:get all mediaTypes mvc could handle;
+note left
+traverse all **HttpMessageConverter**
+if canWrite(Class); then getSupportedMediaTypes()
+endnote
+
+:match client MediaTypes and mvc MediaTypes.;
+note left
+judge weather client MediaType
+is compatible with the mvc MediaTypes
+endnote
+
+:find the most suitable MediaType;
+
+:find a HttpMessageConverter who can handle this MediaType;
+
+:HttpMessageConverter.write();
+
+
+end
+@enduml

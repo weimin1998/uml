@@ -1,0 +1,14 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class RequestMappingHandlerAdapter{
+- List<HandlerMethodArgumentResolver> customArgumentResolvers;
+- HandlerMethodArgumentResolverComposite argumentResolvers;
+- HandlerMethodArgumentResolverComposite initBinderArgumentResolvers;
+- List<HandlerMethodReturnValueHandler> customReturnValueHandlers;
+- HandlerMethodReturnValueHandlerComposite returnValueHandlers;
+- ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+}
+
+
+@enduml

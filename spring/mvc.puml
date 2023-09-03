@@ -1,0 +1,105 @@
+@startuml
+
+'https://plantuml.com/sequence-diagram
+title spring mvc request handling
+start
+
+:Check if the request is a file upload request;
+
+:get HandlerExecutionChain for the request;
+note left
+HandlerExecutionChain:
+handler: which **controller's method** can handle the request
+interceptorList: which **interceptors** can intercept the request
+endnote
+
+if(HandlerExecutionChain is null?) then (no)
+:get HandlerAdapter;
+note left
+select one adapter from handlerAdapters list,
+this adapter just like a **proxy tool** to do following steps
+endnote
+
+:argument resolve;
+note left
+resolve argument name by
+resolve arguments by **argumentResolvers**;
+(**data convert** if necessary
+**data bind**)
+endnote
+
+#pink:apply PreHandle;
+note left
+execute interceptors's **preHandle(req,resp,handlerMethod)**
+endnote
+
+:invoke method;
+
+
+:handle return value;
+note left
+select one **returnValueHandler** to handle return value;
+set ModelAndViewContainer: **model, viewName, requestHandled**
+endnote
+
+:return ModelAndView;
+note left
+return **ModelAndView** regardless of the return value type
+if requestHandled is false, return null, means render View is not needed
+endnote
+
+#pink:apply PostHandle;
+note left
+execute interceptors's **postHandle(req,resp,handlerMethod,modelAndView)**
+endnote
+
+:handle **exception** if occurs;
+note left
+handled by **exceptionResolvers**
+endnote
+if(ModelAndView is null?) then (no)
+
+:build view;
+note left
+resolve by viewResolver:
+new view;
+view.setUrl(getPrefix() + viewName + getSuffix());
+endnote
+
+:render view;
+note left
+1:Expose the model object as **request attributes**;
+2:RequestDispatcher.forward() or response.redirect()
+endnote
+
+
+
+else(yes)
+: do nothing;
+:the result has been written to client by returnValueHandler;
+note right
+data format: json or xml or others
+**content Negotiation**
+Priority:
+response.setContentType("application/json");
+request.addHeader("Accept","application/xml")
+message converter
+endnote
+endif
+
+
+#pink:triggerAfterCompletion;
+note left
+execute interceptors's **afterCompletion(req,resp,handler,exception )** anyway
+endnote
+
+
+:finally publish request handled event;
+
+end
+else(yes)
+:response **404**;
+
+
+end
+@enduml

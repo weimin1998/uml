@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/class-diagram
+title DIY ThreadPool
+
+class BlockingQueue{
+- Deque queue = new ArrayDeque<>()
+- int capacity
+- ReentrantLock lock = new ReentrantLock()
+- Condition fullWaitSet = lock.newCondition()
+- Condition emptyWaitSet = lock.newCondition()
++ BlockingQueue(int capacity)
++ void pull(T task)
++ boolean pull(T task, long timeout, TimeUnit timeUnit)
++ T take()
++ T take(long timeout, TimeUnit timeUnit)
++ int size()
++ void tryPull(RejectPolicy<T> rejectPolicy, T task)
+}
+
+interface RejectPolicy{
+- void reject(BlockingQueue taskQueue, task)
+}
+
+class ThreadPool{
+- BlockingQueue<Runnable> taskQueue;
+- HashSet<Worker> workers = new HashSet<>();
+- int coreSize;
+- long timeout;
+- TimeUnit timeUnit;
+- RejectPolicy<Runnable> rejectPolicy;
++ ThreadPool(int taskQueueCapacity, int coreSize, long timeout, TimeUnit timeUnit, RejectPolicy<Runnable> rejectPolicy)
++ void execute(Runnable task)
+
+
+}
+class Worker{
+- Runnable task
++ Worker(Runnable task)
++ void run()
+}
+
+Thread <|--Worker
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title spring event listening
+start
+
+:applicationContext. publishEvent();
+
+:get **ApplicationEventMulticaster** and **multicastEvent**;
+
+note left
+The following steps are executed by **ApplicationEventMulticaster**;
+SimpleApplicationEventMulticaster
+endnote
+
+:get applicationListeners;
+
+:foreach listener, listener.onApplicationEvent;
+note left
+async if there is Executor
+endnote
+
+end
+@enduml

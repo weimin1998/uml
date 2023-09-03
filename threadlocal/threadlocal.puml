@@ -1,0 +1,22 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class ThreadLocalMap{
+-static final int INITIAL_CAPACITY = 16
+- Entry[] table;
+- int threshold;
+
+}
+
+
+
+class Entry{
+
+}
+
+class WeakReference<ThreadLocal<?>>{
+}
+
+WeakReference <|-- Entry
+
+@enduml

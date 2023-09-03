@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title getBean A
+
+start
+
+:BeanA = singletonObjects.get("a");
+
+if(BeanA != null?) then(yes)
+:return BeanA;
+end
+else(no)
+
+:BeanA = new A();
+
+:populate bean (dependency inject);
+
+:BeanA.init();
+:singletonObjects.put("a", BeanA);
+endif
+end
+@enduml

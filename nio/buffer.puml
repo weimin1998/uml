@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+abstract class Buffer{
+- int mark = -1;
+- int position = 0;
+- int limit;
+- int capacity;
+  long address;
+}
+abstract class ByteBuffer
+abstract class ShortBuffer
+abstract class IntBuffer
+abstract class LongBuffer
+abstract class DoubleBuffer
+abstract class FloatBuffer
+
+Buffer <|-- ByteBuffer
+Buffer <|-- ShortBuffer
+Buffer <|-- IntBuffer
+Buffer <|-- LongBuffer
+Buffer <|-- DoubleBuffer
+Buffer <|-- FloatBuffer
+
+
+
+@enduml
