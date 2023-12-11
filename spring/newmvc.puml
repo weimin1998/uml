@@ -1,0 +1,138 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+
+title springmvc request handling
+
+start
+
+:get WebAsyncManager, to handle async request;
+
+:Check if the request is a file upload request;
+note right
+check if the request contentType
+is start with 'multipart/form-data' or 'multipart/';
+endnote
+
+:get HandlerExecutionChain for the request;
+note left
+HandlerExecutionChain:
+handlerMethod: which **controller's method** can handle the request
+interceptorList: which **interceptors** can intercept the request
+endnote
+
+note right
+take RequestMappingHandlerMapping for example
+1.springmvc collect all the url--handlerMethod
+infos into **mappingRegistry** on startup;
+this step will get **HandlerMethod** by url;
+**One url can only have one HandlerMethod**;
+2.get **interceptors** that matched the url;
+3.combine the handlerMethod and interceptors
+into **HandlerExecutionChain**
+endnote
+
+if(HandlerExecutionChain is null?) then (no)
+'start
+:get HandlerAdapter;
+note right
+select one adapter from handlerAdapters list;
+RequestMappingHandlerAdapter support handle handlerMethod;
+endnote
+
+#pink:apply PreHandle;
+note right
+execute interceptors's **preHandle(req,resp,handlerMethod)**;
+if preHandle return false means request is intercepted,
+then execute interceptors's **afterCompletion(req,resp,handler,exception )** and return;
+endnote
+
+#red:if(synchronizeOnSession);
+note right:to do
+
+:argument resolve;
+note right
+resolve arguments by **argumentResolvers**;
+(**data convert** if necessary
+**data bind**)
+endnote
+
+:invoke method;
+note right:proxy execute method
+
+:handle return value;
+note right
+select one **returnValueHandler** to handle return value;
+set ModelAndViewContainer: **model, viewName, requestHandled(boolean)**
+endnote
+
+:return ModelAndView;
+note right
+return **ModelAndView** regardless of the return value type
+if **requestHandled** is true, then return null, means render View is not needed
+endnote
+
+#red:applyDefaultViewName;
+note right:to do
+
+
+#pink:apply PostHandle;
+note right
+execute interceptors's **postHandle(req,resp,handlerMethod,modelAndView)**
+endnote
+
+:handle **exception** if occurs;
+note right
+handled by **exceptionResolvers**;
+From springmvc4.3, **Error** can also be handled by exceptionResolvers;
+wrap error into NestedServletException:
+dispatchException = new NestedServletException("Handler dispatch failed", err);
+endnote
+
+if(ModelAndView is null?) then (no)
+
+:build view;
+note left
+resolve by viewResolver:
+new view;
+view.setUrl(getPrefix() + viewName + getSuffix());
+endnote
+
+:render view;
+note left
+1:Expose the model object as **request attributes**;
+2:RequestDispatcher.forward() or response.redirect()
+endnote
+
+else(yes)
+
+
+:do nothing,the result has been written to client
+by returnValueHandler in pre step;
+note right
+data format: json or xml or others
+**content Negotiation**
+Priority:
+response.setContentType("application/json");
+request.addHeader("Accept","application/xml")
+**message converter**
+endnote
+
+endif
+
+#pink:triggerAfterCompletion;
+note right
+execute interceptors's **afterCompletion(req,resp,handler,exception )** anyway
+endnote
+
+
+:finally publish request handled event;
+
+'end
+end
+else(yes)
+:response **404**;
+
+end
+@enduml
+
