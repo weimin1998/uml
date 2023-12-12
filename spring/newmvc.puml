@@ -88,8 +88,14 @@ From springmvc4.3, **Error** can also be handled by exceptionResolvers;
 wrap error into NestedServletException:
 dispatchException = new NestedServletException("Handler dispatch failed", err);
 endnote
+note left
+if exceptionResolvers cannot resolve the exception,
+this exception will be thrown to tomcat
+endnote
 
 if(ModelAndView is null?) then (no)
+
+:set locale;
 
 :build view;
 note left
