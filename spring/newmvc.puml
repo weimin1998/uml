@@ -40,6 +40,17 @@ select one adapter from handlerAdapters list;
 RequestMappingHandlerAdapter support handle handlerMethod;
 endnote
 
+if(request method is GET or HEAD?) then(yes)
+:check last modified;
+note right
+
+endnote
+
+else(no)
+endif
+
+
+
 #pink:apply PreHandle;
 note right
 execute interceptors's **preHandle(req,resp,handlerMethod)**;
@@ -72,8 +83,13 @@ return **ModelAndView** regardless of the return value type
 if **requestHandled** is true, then return null, means render View is not needed
 endnote
 
-#red:applyDefaultViewName;
-note right:to do
+:applyDefaultViewName;
+note right
+check if mav has viewName
+if not, for example: the controller method return void,
+**then use the request url as the view name**;
+endnote
+
 
 
 #pink:apply PostHandle;
@@ -131,6 +147,16 @@ note right
 execute interceptors's **afterCompletion(req,resp,handler,exception )** anyway
 endnote
 
+
+if(async request?) then(yes)
+#red:todo;
+else(no)
+endif
+
+if(file upload request?) then(yes)
+:clearup temp file from the file upload process;
+else(no)
+endif
 
 :finally publish request handled event;
 
