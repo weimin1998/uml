@@ -132,7 +132,7 @@ else(yes)
 :do nothing,the result has been written to client
 by returnValueHandler in pre step;
 note right
-data format: json or xml or others
+data format: select MediaType, json or xml or others
 **content Negotiation**
 Priority:
 response.setContentType("application/json");
