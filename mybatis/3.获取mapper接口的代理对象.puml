@@ -1,0 +1,22 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+participant DefaultSqlSession as sqlSession
+participant Configuration as configuration
+participant MapperRegistry as mapperRegistry
+participant MapperProxyFactory as mapperProxyFactory
+participant MapperProxy as mapperProxy
+
+sqlSession -> configuration : getMapper(classType)
+configuration -> mapperRegistry : getMapper(classType)
+mapperRegistry -> mapperRegistry : getMapper(classType)
+mapperRegistry -> mapperProxyFactory : 获取 MapperProxyFactory
+mapperProxyFactory -> mapperProxyFactory : mapperProxyFactory.newInstance(sqlSession)
+mapperProxyFactory -> mapperProxy : **new MapperProxy对象，它是InvocationHandler的实现类**
+mapperProxyFactory -> mapperProxy : **创建代理对象。Proxy.newProxyInstance(mapper接口的类加载器, mapper接口, mapperProxy)**
+mapperProxyFactory --> sqlSession : 返回代理对象
+
+
+@enduml

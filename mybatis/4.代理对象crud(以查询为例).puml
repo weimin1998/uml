@@ -1,0 +1,56 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+participant MapperProxy as mapperProxy
+participant PlainMethodInvoker as invoker
+participant MapperMethod as mapperMethod
+participant DefaultSqlSession as sqlSession
+participant CachingExecutor as cachingExecutor
+participant SimpleExecutor as simpleExecutor
+participant PrepareStatementHandler as statementHandler
+
+mapperProxy -> mapperProxy : invoke()
+mapperProxy -> invoker : new PlainMethodInvoker
+invoker -> mapperMethod : new MapperMethod
+mapperMethod -> mapperMethod : execute(sqlSession,arg)
+mapperMethod -> mapperMethod : 判断当前是什么操作（crud）
+mapperMethod -> mapperMethod : **如果是select，包装参数为一个map或者直接返回**
+mapperMethod -> sqlSession : sqlSession.selectOne(param)
+sqlSession -> sqlSession : List list = sqlSession.selectList()
+sqlSession -> sqlSession : 从configuration中获取select标签对象的信息 MappedStatement
+sqlSession -> cachingExecutor : **executor.query(MappedStatement, param)**
+cachingExecutor -> cachingExecutor: 获取boundSql，代表sql语句的详细信息（sql语句，参数等）
+cachingExecutor -> cachingExecutor: 创建一个key，在缓存时用到
+cachingExecutor -> cachingExecutor: **先根据key，查询二级缓存中有没有结果，有的话直接返回。**
+cachingExecutor -> simpleExecutor: 二级查询缓存没有，则调用simpleExecutor.query()。
+simpleExecutor -> simpleExecutor: **查询一级缓存，如果有则返回**
+simpleExecutor -> simpleExecutor: 一级缓存没有，则 queryFromDatabase（）。查出结果后，放入一级缓存
+simpleExecutor -> simpleExecutor: doQuery
+simpleExecutor -> statementHandler : **使用 configuration，创建 statementHandler 对象，默认是PrepareStatementHandler，在select标签中可配置**
+simpleExecutor -> statementHandler : **如果有插件 Interceptor：statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);**
+simpleExecutor -> statementHandler: **在创建statementHandler 对象的同时，也会使用 configuration 顺带创建 ParameterHandler 和 ResultSetHandler，并且使用插件包装**
+== 下面是对原生jdbc的封装 ==
+statementHandler -> statementHandler : 创建连接对象 connection
+statementHandler -> statementHandler : 预编译sql，产生 PrepareStatement对象
+statementHandler -> statementHandler : 调用 ParameterHandler 设置参数
+statementHandler -> statementHandler : 调用 TypeHandler 给sql 设置参数
+statementHandler -> statementHandler : query(), 调用 PreparedStatement.execute()
+statementHandler -> statementHandler : 调用 ResultSetHandler 处理结果
+statementHandler -> statementHandler : 调用 TypeHandler setResult
+
+statementHandler --> sqlSession : 返回list
+sqlSession --> mapperMethod : 返回list的第一个
+
+
+
+
+
+
+
+
+
+
+
+@enduml

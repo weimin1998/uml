@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+participant SqlSessionFactoryBuilder as builder
+participant XMLConfigBuilder as parser
+participant Configuration as configuration
+participant DefaultSqlSessionFactory as sqlSessionFactory
+
+builder ->parser : build(全局配置文件inputStream)
+parser ->parser : 创建parser
+parser ->configuration: 解析每个标签，把详细信息保存在 Configuration 中
+parser ->configuration: 解析 mapper.xml，把详细信息保存在 Configuration 中
+configuration-->parser: 返回Configuration对象
+parser->sqlSessionFactory: build(Configuration)
+sqlSessionFactory-->builder: 创建并返回 DefaultSqlSessionFactory对象
+
+
+@enduml

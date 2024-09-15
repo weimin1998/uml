@@ -1,0 +1,22 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+participant DefaultSqlSessionFactory as sqlSessionFactory
+participant Configuration as configuration
+participant Executor as executor
+participant DefaultSqlSession as sqlSession
+
+sqlSessionFactory -> sqlSessionFactory: openSession
+sqlSessionFactory -> configuration: openSessionFromDataSource
+configuration ->configuration: 获取 environment，创建事务 tx
+configuration ->executor: configuration.newExecutor(tx)
+executor->executor: 根据配置类型，创建executor。SIMPLE, REUSE, BATCH
+executor->executor: 如果配置了二级缓存，executor = new CachingExecutor(executor)
+executor->executor: **如果有插件 Interceptor：executor = (Executor) interceptorChain.pluginAll(executor);**
+executor->sqlSession: sqlSession = new DefaultSqlSession(configuration, executor, autoCommit)
+sqlSession-->sqlSessionFactory: 返回 sqlSession
+
+
+@enduml
