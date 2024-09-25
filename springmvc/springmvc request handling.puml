@@ -1,0 +1,174 @@
+@startuml
+
+title springmvc request handling
+autonumber
+
+participant HttpServlet as httpServlet
+participant FrameworkServlet as frameworkServlet
+participant DispatcherServlet as dispatcherServlet
+participant LocaleContextHolder和RequestContextHolder as lar
+/'participant HandlerExecutionChain as handlerExecutionChain'/
+/'participant HandlerAdapter as handlerAdapter'/
+participant RequestMappingHandlerAdapter as requestMappingHandlerAdapter
+participant ServletInvocableHandlerMethod as servletInvocableHandlerMethod
+
+
+
+httpServlet -> httpServlet : service(ServletRequest, ServletResponse)
+httpServlet -> httpServlet : service(HttpServletRequest, HttpServletResponse)
+httpServlet -> frameworkServlet : doGet
+frameworkServlet -> frameworkServlet : processRequest(HttpServletRequest, HttpServletResponse)
+frameworkServlet -> lar : 从 ThreadLocal 获取当前线程的 LocaleContext 和 RequestAttributes，保存到局部变量，后面恢复时用到
+
+frameworkServlet -> lar : 根据当前 request 创建 新的 LocaleContext 和 RequestAttributes，保存到threadLocal，以备后续请求处理流程使用
+
+frameworkServlet -> frameworkServlet : 创建 WebAsyncManager 以便处理异步请求
+note left
+异步请求先跳过
+endnote
+
+frameworkServlet -> dispatcherServlet : doService
+dispatcherServlet -> dispatcherServlet : 判断当前请求是否是include请求，如果是，则对当前request 的 attributes做一个快照备份
+
+dispatcherServlet -> dispatcherServlet : 向当前request 对象中，设置4个attribute，以备后续请求处理流程使用
+note left
+WebApplicationContext
+localeResolver
+themeResolver
+ThemeSource
+endnote
+
+dispatcherServlet -> dispatcherServlet : 向当前request 对象中，设置 flashMap 相关的 attribute，以备后续请求处理流程使用
+note left
+input FlashMap
+output FlashMap
+flashMapManager
+endnote
+
+dispatcherServlet -> dispatcherServlet : 处理上一次请求路径
+note left
+是否做这一步
+由布尔变量 parseRequestPath 控制
+先跳过
+endnote
+
+dispatcherServlet -> dispatcherServlet : doDispatch
+
+dispatcherServlet -> dispatcherServlet : 检查当前请求是否是 文件上传请求
+dispatcherServlet -> dispatcherServlet : 获取可以处理当前请求的 HandlerExecutionChain。如果没找到直接404
+note left
+HandlerExecutionChain:
+1.controller中对应的方法对象，封装成handlerMethod
+2.可以拦截当前请求的所有拦截器，interceptorList
+endnote
+
+dispatcherServlet -> dispatcherServlet : 获取可以处理执行 controller方法的 HandlerAdapter
+
+dispatcherServlet -> dispatcherServlet : 如果是get请求，处理 last-modified header
+note left
+先跳过
+endnote
+
+/'dispatcherServlet -> handlerExecutionChain : 依次执行所有拦截器的 preHandle 方法'/
+dispatcherServlet -> dispatcherServlet : 依次执行所有拦截器的 preHandle 方法
+note left
+如果返回false，则表示请求被某个拦截器拦截了，直接return
+在return之前，执行 “已经执行过 preHandle 方法的”拦截器的 afterCompletion 方法
+也就是 该拦截器、以及该拦截器之前已经执行过 preHandle 方法的拦截器
+endnote
+
+/'dispatcherServlet -> handlerAdapter: handle(request, response, handlerMethod)
+handlerAdapter -> requestMappingHandlerAdapter: handleInternal(request, response, handlerMethod)'/
+
+dispatcherServlet -> requestMappingHandlerAdapter : handleInternal(request, response, handlerMethod)
+
+requestMappingHandlerAdapter -> requestMappingHandlerAdapter : invokeHandlerMethod(request, response, handlerMethod);
+
+requestMappingHandlerAdapter -> requestMappingHandlerAdapter : 创建 WebDataBinderFactory 和 ModelFactory
+note left
+WebDataBinderFactory 数据绑定
+ModelFactory 是什么作用？
+endnote
+
+requestMappingHandlerAdapter -> requestMappingHandlerAdapter : 将 handlerMethod 封装成 ServletInvocableHandlerMethod
+note left
+并为 ServletInvocableHandlerMethod设置以下属性：
+argumentResolvers 执行控制器方法前，需要解析参数
+returnValueHandlers 执行控制器方法后，需要处理返回值
+WebDataBinderFactory 解析参数的过程中，可能需要数据绑定
+parameterNameDiscoverer ？
+endnote
+
+requestMappingHandlerAdapter -> requestMappingHandlerAdapter : 创建 ModelAndViewContainer
+note left
+ModelAndViewContainer
+负责在整个处理请求的过程中传递数据。
+endnote
+
+requestMappingHandlerAdapter -> requestMappingHandlerAdapter : 异步请求的相关流程
+note left
+暂时跳过
+endnote
+
+requestMappingHandlerAdapter -> servletInvocableHandlerMethod : invokeAndHandle(webRequest, mavContainer)
+note left
+这个方法分三步
+1.参数解析器解析参数
+2.反射执行控制器方法
+3.返回值处理器处理结果
+
+这里是最复杂的，还包括：
+参数解析时的数据绑定和数据转换
+返回值处理时的内容协商
+endnote
+
+requestMappingHandlerAdapter -> requestMappingHandlerAdapter : mav = getModelAndView
+note left
+这里分两种情况
+1.如果控制器方法返回的是数据，
+那么返回值处理器，就会把数据写到response，并且返回
+mavContainer就会标记 requestHandled = true
+那么请求就已经处理完了，不需要再走后面视图解析的流程了
+2.如果控制器方法返回的是视图名，
+mavContainer就会标记 requestHandled = false，
+就还需要走视图解析，这种情况适用于 前后端不分离的情况
+endnote
+
+requestMappingHandlerAdapter --> dispatcherServlet : 返回mav
+
+dispatcherServlet -> dispatcherServlet : applyDefaultViewName
+note left
+如果控制器方法既没有返回数据，
+也没有返回视图名，
+那么就根据当前请求的路径查找视图
+endnote
+
+dispatcherServlet -> dispatcherServlet : 依次执行所有拦截器的 postHandle 方法
+note left
+注意这里是倒序执行的
+endnote
+
+dispatcherServlet -> dispatcherServlet : processDispatchResult
+note left
+这个方法做三件事情：
+1.处理异常，如果有的话
+2.处理mav，如果有的话
+3.依次执行所有拦截器的 afterCompletion 方法，倒序执行
+endnote
+
+
+frameworkServlet -> lar : 恢复当前线程的 LocaleContext 和 RequestAttributes
+note left
+为什么需要获取上次request的
+LocaleContext 和 RequestAttributes，
+在这里又要恢复？
+endnote
+frameworkServlet -> frameworkServlet : 发布事件 publishRequestHandledEvent
+note left
+是否发布事件，可以根据
+布尔变量 publishEvents 来控制
+默认是true
+endnote
+
+
+@enduml
