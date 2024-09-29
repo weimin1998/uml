@@ -1,0 +1,43 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+title RequestResponseBodyMethodProcessor handleReturnValue
+start
+
+:mavContainer.setRequestHandled(true);
+note left
+后面就不走视图解析的流程了
+endnote
+
+:获取客户端支持的所有 mediaTypes;
+note left
+如何获取？这里有多种策略
+request header 的 **Accept** 字段; （默认）
+request param;
+request url suffix;
+endnote
+
+:获取服务器端可以处理的所有 mediaTypes;
+note left
+遍历所有的 **HttpMessageConverter**
+如果当前 httpMessageConverter.canWrite(返回值类型)，
+则获取，getSupportedMediaTypes()
+endnote
+
+:比较客户端的mediaTypes和服务器端的mediaTypes，选一个最合适的。 selectedMediaType;
+
+:遍历所有的 **HttpMessageConverter**，找到第一个可以处理 selectedMediaType;
+note left
+如果有多个可以处理呢？
+按顺序取第一个
+endnote
+
+:把数据写个客户端之前，调用ResponseBodyAdvice 做一些前置处理;
+note left
+这里遍历所有的ResponseBodyAdvice
+只有support 的才调用 beforeBodyWrite
+endnote
+
+:HttpMessageConverter.write();
+
+end
+@enduml
